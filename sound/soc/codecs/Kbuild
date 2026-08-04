@@ -83,3 +83,4 @@ ifeq ($(CONFIG_GINNA_DTB), y)
 snd_smartpa_aw882xx-objs = aw882xx.o
 obj-y += snd_smartpa_aw882xx.o
 endif
+include $(src)/Makefile
