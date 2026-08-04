@@ -1,0 +1,326 @@
+/* Copyright (c) 2017, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+
+/ {
+	qrd_batterydata: qcom,battery-data {
+		qcom,batt-id-range-pct = <24>;
+
+		#include "sdm632-batterydata-m1822.dtsi"
+	};
+
+};
+
+&spmi_bus {
+	qcom,pm8953@0 {
+		qcom,power-on@800 {
+			qcom,pon_1 {
+				qcom,support-reset = <1>;
+				qcom,s1-timer = <6720>;
+				qcom,s2-timer = <0>;
+				qcom,s2-type = <7>;
+			};
+
+			qcom,pon_3 {
+				qcom,pon-type = <3>;
+				qcom,pull-up = <1>;
+				qcom,support-reset = <1>;
+				qcom,s1-timer = <6720>;
+				qcom,s2-timer = <2000>;
+				qcom,s2-type = <7>;
+			};
+		};
+
+		/delete-node/ qcom,pm8953_typec@bf00;
+	};
+
+};
+
+&pm8953_gpios {
+    gpio@c100 {
+        reg = <0xc100 0x100>;
+        qcom,pin-num = <2>;
+        qcom,mode = <0>;
+        qcom,pull = <0>;
+        qcom,vin-sel = <2>;
+        qcom,src-sel = <0>;
+        qcom,master-en = <1>;
+        qcom,out-strength = <3>;
+        qcom,output-type = <0>;
+        status = "okay";
+    };
+    
+    gpio@c000 {
+        reg = <0xc000 0x100>;
+        qcom,pin-num = <1>;
+        qcom,mode = <1>;
+        qcom,pull = <5>;
+        qcom,vin-sel = <0>;
+        qcom,src-sel = <2>;
+        qcom,master-en = <1>;
+        qcom,out-strength = <2>;
+        status = "okay";
+    };
+};
+
+
+&soc {
+	apps_iommu: qcom,iommu@1e00000 {
+		qcom,no-aarch64;
+	};
+
+	/delete-node/ gpio_keys;
+	gpio_keys {
+		compatible = "gpio-keys";
+		label = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_key_active>;
+
+		camera_focus {
+				gpios = <&tlmm 87 0x1>;
+				linux,can-disable;
+				debounce-interval = <15>;
+				label = "camera_focus";
+				linux,input-type = <1>;
+				gpio-key,wakeup;
+				linux,code = <0x210>;
+		};
+
+		camera_snapshot {
+				gpios = <&tlmm 86 0x1>;
+				linux,can-disable;
+				debounce-interval = <15>;
+				label = "camera_snapshot";
+				linux,input-type = <1>;
+				gpio-key,wakeup;
+				linux,code = <0x2fe>;
+		};
+
+		vol_up {
+			label = "volume_up";
+			gpios = <&tlmm 85 0x1>;
+			linux,input-type = <1>;
+			linux,code = <115>;
+			debounce-interval = <15>;
+			linux,can-disable;
+			gpio-key,wakeup;
+		};
+	};
+
+	hall {
+		compatible = "hall-switch";
+		pinctrl-names = "default";
+		pinctrl-0 = <&hall_sensor_int_default>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <13 0x2003>;
+		vddio-supply = <&pm8953_l6>;
+		linux,gpio-int = <&tlmm 13 1>;
+		linux,wakeup;
+		linux,min-uv = <1650000>;
+		linux,max-uv = <3300000>;
+	};
+
+	goodix_fingerprint {
+		compatible = "goodix,fingerprint";
+		goodix,gpio_irq = <&tlmm 48 0>;
+		goodix,gpio_reset = <&tlmm 140 0>;
+	};
+
+	sunwave_fingerprint {
+		compatible = "qcom,fingerprint";
+		fp,gpio_irq = <&tlmm 48 0>;
+		fp,gpio_rst = <&tlmm 140 0>;
+	};
+
+	i2c@78b6000 {
+        status = "ok";
+
+        sm5424-charger@49 {
+            compatible = "qcom,sm5424-charger";
+            reg = <0x49>;
+            status = "ok";
+            
+            qcom,float-voltage-mv = <4400>;
+            qcom,iterm-ma = <300>;
+            qcom,nINT-gpio = <9>;
+            qcom,parallel-charger;
+            qcom,recharge-mv = <100>;
+            qcom,switch-freq = <2>;
+        };
+
+        aw87329@58 {
+            compatible = "awinic,aw87329_pa";
+            reg = <0x58>;
+            status = "okay";
+            reset-gpio = <&tlmm 96 0>;
+        };
+    };
+
+		i2c@78b7000 { /* BLSP1 QUP3 */
+		qcom,disable-dma;
+
+			compatible = "qcom,i2c-msm-v2";
+			clocks = <0x29 0x8caa5b4f 0x29 0x9e25ac82>;
+			reg-names = "qup_phys_addr";
+			pinctrl-1 = <0x10f>;
+			clock-names = "iface_clk", "core_clk";
+			qcom,clk-freq-in = <0x124f800>;
+			status = "okay";
+			#address-cells = <0x01>;
+			interrupts = <0x00 0x61 0x00>;
+			#size-cells = <0x00>;
+			dma-names = "tx", "rx";
+			reg = <0x78b7000 0x600>;
+			pinctrl-0 = <0x10e>;
+			dmas = <0x10d 0x08 0x40 0x20000020 0x20 0x10d 0x09 0x20 0x20000020 0x20>;
+			qcom,clk-freq-out = <0x61a80>;
+			interrupt-names = "qup_irq";
+			qcom,noise-rjct-scl = <0x00>;
+			qcom,noise-rjct-sda = <0x00>;
+			pinctrl-names = "i2c_active", "i2c_sleep";
+			qcom,master-id = <0x56>;
+
+			synaptics_dsx@70 {
+				synaptics,irq-gpio = <&tlmm 65 0x2008>;
+				synaptics,reset-delay-ms = <0xc8>;
+				compatible = "synaptics,td4310", "synaptics,dsx-i2c";
+				synaptics,rst-gpio = <&tlmm 61 0x00>;
+				synaptics,irq-on-state = <0x00>;
+				lab-supply = <&lcdb_ldo_vreg>;
+				synaptics,bus-reg-name = "vdd";
+				synaptics,ub-i2c-addr = <0x2c>;
+				synaptics,ibb-reg-name = "ibb";
+				interrupt-parent = <&tlmm>;
+				interrupts = <0x41 0x2008>;
+				synaptics,reset-on-state = <0x00>;
+				ibb-supply = <&lcdb_ncp_vreg>;
+				synaptics,reset-active-ms = <0x14>;
+				touchpanel,irq-gpio = <&tlmm 65 0x00>;
+				synaptics,lab-reg-name = "lab";
+				vdd-supply = <&pm8953_l5>;
+				reg = <0x70>;
+				pinctrl-names = "pmx_ts_active", "pmx_ts_suspend";
+				pinctrl-0 = <&ts_active>;
+				pinctrl-1 = <&ts_suspend>;
+				touchpanel,rst-gpio = <&tlmm 61 0x00>;
+				synaptics,power-delay-ms = <0x00>;
+			};
+
+			novatech@62 {
+				compatible = "novatek,nt36672", "novatek,NVT-ts";
+				lab-supply = <&lcdb_ldo_vreg>;
+				novatek,reset-gpio = <&tlmm 64 0x00>;
+				touchpanel,open_short_not_use_fw;
+				novatek,irq-gpio = <&tlmm 65 0x2001>;
+				status = "ok";
+				interrupt-parent = <&tlmm>;
+				ibb-supply = <&lcdb_ncp_vreg>;
+				touchpanel,irq-gpio = <&tlmm 65 0x00>;
+				vdd-supply = <&pm8953_l5>;
+				reg = <0x62>;
+				touchpanel,rst-gpio = <&tlmm 64 0x00>;
+			};
+
+			wsa881x_i2c_45_m1822: wsa881x-i2c-codec@45 {
+				compatible = "qcom,wsa881x-i2c-codec";
+				status = "okay";
+				reg = <0x45>;
+			};
+
+			wsa881x_i2c_f_m1822: wsa881x-i2c-codec@f {
+				compatible = "qcom,wsa881x-i2c-codec";
+												status = "okay";
+				reg = <0x0f>;
+							};
+
+			solomon@53 {
+				vcc_i2c-supply = <&pm8953_l6>;
+				compatible = "solomon,ssd2092";
+				solomon,bus-reg-name = "vcc-i2c";
+				lab-supply = <&lcdb_ldo_vreg>;
+				solomon,ibb-reg-name = "ibb";
+				lcd-reset-gpios = <&tlmm 61 0x00>;
+				touchpanel,open_short_not_use_fw;
+				interrupt-parent = <&tlmm>;
+				solomon,lab-reg-name = "lab";
+				interrupts = <0x41 0x2008>;
+				ibb-supply = <&lcdb_ncp_vreg>;
+				reset-gpios = <&tlmm 64 0x00>;
+				interrupt-gpios = <&tlmm 65 0x00>;
+				touchpanel,irq-gpio = <&tlmm 65 0x00>;
+				reg = <0x53>;
+				touchpanel,rst-gpio = <&tlmm 61 0x00>;
+			};
+			};
+
+
+	/delete-node/ qseecom@85b00000;
+
+	usb3: ssusb@7000000 {
+		vbus_dwc3-supply = <&smb5_vbus>;
+		qcom,detect-dpdm-floating;
+	};
+
+	qusb_phy: qusb@79000 {
+		qcom,qusb-phy-init-seq = <0xF8 0x80
+					0x53 0x84 /* changed by xiaomi */
+					0x93 0x88 /* changed by xiaomi */
+					0xCf 0x8C /* changed by xiaomi */
+					0x14 0x9C
+					0x30 0x08
+					0x79 0x0C
+					0x21 0x10
+					0x00 0x90
+					0x9F 0x1C
+					0x00 0x18>;
+	};
+
+	sn_fuse: snfuse@0xa4128 {
+		compatible = "qcom,sn-fuse";
+		reg = <0xa4128 0x4>;
+		reg-names = "sn-base";
+	};
+
+	qcom_seecom: qseecom@84a00000 { /* renamed from caf qseecom@85b00000 */
+		compatible = "qcom,qseecom";
+		reg = <0x84a00000 0x1900000>; /* changed by xiaomi */
+		reg-names = "secapp-region";
+		qcom,hlos-num-ce-hw-instances = <1>;
+		qcom,hlos-ce-hw-instance = <0>;
+		qcom,qsee-ce-hw-instance = <0>;
+		qcom,disk-encrypt-pipe-pair = <2>;
+		qcom,support-fde;
+		qcom,msm-bus,name = "qseecom-noc";
+		qcom,msm-bus,num-cases = <4>;
+		qcom,msm-bus,num-paths = <1>;
+		qcom,support-bus-scaling;
+		qcom,msm-bus,vectors-KBps =
+				<55 512 0 0>,
+				<55 512 0 0>,
+				<55 512 120000 1200000>,
+				<55 512 393600 3936000>;
+		clocks = <&clock_gcc clk_crypto_clk_src>,
+					<&clock_gcc clk_gcc_crypto_clk>,
+					<&clock_gcc clk_gcc_crypto_ahb_clk>,
+					<&clock_gcc clk_gcc_crypto_axi_clk>;
+		clock-names = "core_clk_src", "core_clk",
+						"iface_clk", "bus_clk";
+		qcom,ce-opp-freq = <100000000>;
+	};
+};
+
+&thermal_zones {
+	xo-therm-adc {
+		polling-delay = <1000>;
+	};
+};

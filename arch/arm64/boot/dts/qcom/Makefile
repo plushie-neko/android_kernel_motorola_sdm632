@@ -47,6 +47,8 @@ dtbo-$(CONFIG_CHANNEL_DTB) += \
 
 dtbo-$(CONFIG_SURFNA_DTB) += msm8940-surfna-evt-overlay.dtbo
 
+dtbo-$(CONFIG_M1822_DTB) += sdm632-m1822-overlay.dtbo
+
 sdm450-ali-evt-overlay.dtbo-base := \
 		sdm450-ali-base.dtb
 
@@ -110,6 +112,10 @@ sdm632-channel-tmo-dvt-overlay.dtbo-base := \
 
 msm8940-surfna-evt-overlay.dtbo-base := \
 	msm8940-surfna-base.dtb
+
+sdm632-m1822-overlay.dtbo-base := \
+	sdm632-m1822-base.dtb
+
 else
 dtb-$(CONFIG_ARCH_QCOM)	+= apq8016-sbc.dtb msm8916-mtp.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8996-mtp.dtb

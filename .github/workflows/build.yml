@@ -1,0 +1,92 @@
+name: Build Kernel
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every Saturday at 00:00 UTC
+    - cron: "0 0 * * 6"
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - HEAD
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_MAXSIZE: "2G"
+      CCACHE_HARDLINK: "true"
+      KERNEL_DEFCONFIG: "m1822_defconfig"
+      KERNEL_CMDLINE: "ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- O=out"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: "true"
+          fetch-depth: 100
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y 
+          sudo apt install gcc-aarch64-linux-gnu -y
+          sudo apt install gcc-arm-linux-gnueabi -y
+          sudo apt install binutils make python3 libssl-dev build-essential bc bison flex unzip libssl-dev ca-certificates xz-utils mkbootimg cpio device-tree-compiler git git-lfs -y
+          git clone --depth=1 https://github.com/kdrag0n/proton-clang proton-clang
+          
+          # Remove the bundled host GNU linker to avoid glibc compatibility issues with HOSTCC
+          rm -f proton-clang/bin/ld
+          
+          git clone https://github.com/osm0sis/AnyKernel3
+          sed -i 's/do.devicecheck=1/do.devicecheck=0/g' AnyKernel3/anykernel.sh
+          sed -i 's!BLOCK=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;!BLOCK=auto;!g' AnyKernel3/anykernel.sh
+          sed -i 's/IS_SLOT_DEVICE=0;/is_slot_device=auto;/g' AnyKernel3/anykernel.sh
+          sed -i 's/do.modules=0/do.modules=1/g' AnyKernel3/anykernel.sh
+          rm -rf AnyKernel3/.git* AnyKernel3/README.md
+
+      - name: GetTime
+        id: get_time
+        run: |
+          echo "TIME=$(TZ=UTC+3 date +%s )" >> $GITHUB_OUTPUT
+
+      - name: Build Kernel-With-KernelSU
+        run: |
+          export PATH=$(pwd)/proton-clang/bin:$PATH
+          
+          sed -i 's/do.systemless=1/do.systemless=0/g' AnyKernel3/anykernel.sh
+          # Make AnyKernel3 copy ALL module files (including modules.dep/alias) instead of just .ko files
+          sed -i 's/find . -name '"'"'\*.ko'"'"'/find . -type f/g' AnyKernel3/META-INF/com/google/android/update-binary
+          
+          make $KERNEL_CMDLINE $KERNEL_DEFCONFIG CC="ccache clang"
+          make $KERNEL_CMDLINE CC="ccache clang" -j$(nproc --all)
+          
+          make $KERNEL_CMDLINE CC="ccache clang" INSTALL_MOD_PATH=$(pwd)/out/modules INSTALL_MOD_STRIP=1 modules_install
+          cp out/arch/arm64/boot/Image AnyKernel3
+          
+          # Copy the newly compiled DTB and DTBO so AnyKernel3 flashes them
+          cp out/arch/arm64/boot/dts/qcom/sdm632-m1822-base.dtb AnyKernel3/dtb
+          cp out/arch/arm64/boot/dts/qcom/sdm632-m1822-overlay.dtbo AnyKernel3/dtbo
+          
+          mkdir -p AnyKernel3/modules/vendor/lib/modules
+          
+          # Copy the full module tree structure including modules.dep, modules.alias, etc.
+          cp -a out/modules/lib/modules/*/* AnyKernel3/modules/vendor/lib/modules/ || true
+          
+          # Remove the 'build' and 'source' symlinks so GitHub Actions doesn't zip the entire 3GB kernel source tree!
+          rm -f AnyKernel3/modules/vendor/lib/modules/build
+          rm -f AnyKernel3/modules/vendor/lib/modules/source
+          
+          # The Wi-Fi HAL specifically looks for pronto_wlan.ko at the root of /vendor/lib/modules/
+          # We copy it there from its location in the kernel tree.
+          find AnyKernel3/modules/vendor/lib/modules -name "wlan.ko" -exec cp {} AnyKernel3/modules/vendor/lib/modules/pronto_wlan.ko \;
+
+      - name: Upload Kernel-SU
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.get_time.outputs.TIME }}
+          path: "AnyKernel3/*"
