@@ -1,0 +1,5 @@
+config FINGERPRINT_SUNWAVE
+	tristate "Sunwave Fingerprint"
+	default y
+	help
+	  SUNWAVECORP Fingerprint

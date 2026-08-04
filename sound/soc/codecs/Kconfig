@@ -561,6 +561,12 @@ config SND_SOC_MAX98357A
 config SND_SOC_MAX98371
        tristate
 
+config SND_SOC_AW87329
+	tristate "SoC Audio for awinic aw87329 series"
+	depends on I2C
+	help
+	  Enables support for aw87329 series Smart PA.
+
 config SND_SOC_MAX98504
 	tristate "Maxim MAX98504 speaker amplifier"
 	depends on I2C
