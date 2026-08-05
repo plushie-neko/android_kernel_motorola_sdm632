@@ -1763,6 +1763,8 @@ int msm_pinctrl_probe(struct platform_device *pdev,
 	}
 	key = "pinctrl_regs";
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, key);
+	if (!res)
+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	pctrl->regs = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(pctrl->regs))
 		return PTR_ERR(pctrl->regs);
