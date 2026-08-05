@@ -4336,7 +4336,7 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 
 #ifdef CONFIG_FB
 	rmi4_data->fb_notifier.notifier_call = synaptics_rmi4_dsi_panel_notifier_cb;
-	retval = msm_drm_register_client(&rmi4_data->fb_notifier);
+	retval = fb_register_client(&rmi4_data->fb_notifier);
 	if (retval < 0) {
 
 
@@ -4444,7 +4444,7 @@ err_virtual_buttons:
 
 err_enable_irq:
 #ifdef CONFIG_FB
-	msm_drm_unregister_client(&rmi4_data->fb_notifier);
+	fb_unregister_client(&rmi4_data->fb_notifier);
 #endif
 
 #ifdef USE_EARLYSUSPEND
@@ -4531,7 +4531,7 @@ static int synaptics_rmi4_remove(struct platform_device *pdev)
 	synaptics_rmi4_irq_enable(rmi4_data, false, false);
 
 #ifdef CONFIG_FB
-	msm_drm_unregister_client(&rmi4_data->fb_notifier);
+	fb_unregister_client(&rmi4_data->fb_notifier);
 #endif
 
 #ifdef USE_EARLYSUSPEND

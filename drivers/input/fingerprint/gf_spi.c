@@ -46,7 +46,7 @@
 #include <net/netlink.h>
 #include "gf_spi.h"
 
-extern bool mback_disable;
+
 
 static DECLARE_BITMAP(minors, N_SPI_MINORS);
 static LIST_HEAD(device_list);
@@ -295,10 +295,8 @@ static void gf_kernel_key_input(struct gf_dev *gf_dev, struct gf_key *gf_key)
 	gf_info("recieved key event[%d], key=%d, value=%d\n",
                         key_input, gf_key->key, gf_key->value);
 
-	if (!mback_disable) {
-		input_report_key(gf_dev->input, key_input, gf_key->value);
-		input_sync(gf_dev->input);
-	}
+	input_report_key(gf_dev->input, key_input, gf_key->value);
+	input_sync(gf_dev->input);
 }
 
 static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
