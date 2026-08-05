@@ -72,7 +72,7 @@ jobs:
           cp out/arch/arm64/boot/dts/qcom/sdm632-m1822-base.dtb AnyKernel3/dtb
           
           # Download mkdtboimg.py to create dtbo.img
-          curl -s "https://android.googlesource.com/platform/system/libufdt/+/refs/tags/android-10.0.0_r47/utils/src/mkdtboimg.py?format=TEXT" | base64 -d > mkdtboimg.py
+          curl -s "https://android.googlesource.com/platform/system/libufdt/+/refs/heads/master/utils/src/mkdtboimg.py?format=TEXT" | base64 -d > mkdtboimg.py
           chmod +x mkdtboimg.py
           python3 mkdtboimg.py create AnyKernel3/dtbo.img out/arch/arm64/boot/dts/qcom/sdm632-m1822-overlay.dtbo
           
