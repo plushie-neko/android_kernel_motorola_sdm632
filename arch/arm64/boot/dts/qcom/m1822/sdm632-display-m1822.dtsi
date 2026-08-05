@@ -15,7 +15,6 @@
 
 &dsi_td4310_csot_fhdp_vid {
 	qcom,mdss-dsi-panel-timings-phy-v2 = <0x241f0809 0x50304a0 0x241f0809 0x50304a0 0x241f0809 0x50304a0 0x241f0809 0x50304a0 0x241b0809 0x50304a0>;
-    qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 };
 
 &mdss_dsi0 {
