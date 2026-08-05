@@ -1755,6 +1755,12 @@ int msm_pinctrl_probe(struct platform_device *pdev,
 
 	spin_lock_init(&pctrl->lock);
 
+	{
+		int i;
+		for (i = 0; i < pdev->num_resources; i++) {
+			dev_err(&pdev->dev, "Resource %d: name=%s, start=%llx, flags=%x\n", i, pdev->resource[i].name, (unsigned long long)pdev->resource[i].start, pdev->resource[i].flags);
+		}
+	}
 	key = "pinctrl_regs";
 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, key);
 	pctrl->regs = devm_ioremap_resource(&pdev->dev, res);
