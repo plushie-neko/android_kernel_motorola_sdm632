@@ -1253,7 +1253,6 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 			if (panel_recovery_retry++ > 5) {
 				pr_err("%s: panel recovery failed for all retries",
 					__func__);
-				BUG();
 			}
 		} else
 			panel_recovery_retry = 0;
