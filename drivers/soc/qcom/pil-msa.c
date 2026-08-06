@@ -616,14 +616,16 @@ static int pil_mss_reset(struct pil_desc *pil)
 	}
 
 	/* Program DP Address */
-	if (drv->dp_size) {
-		writel_relaxed(start_addr + SZ_1M, drv->rmb_base +
-			       RMB_PMI_CODE_START);
-		writel_relaxed(drv->dp_size, drv->rmb_base +
-			       RMB_PMI_CODE_LENGTH);
-	} else {
-		writel_relaxed(0, drv->rmb_base + RMB_PMI_CODE_START);
-		writel_relaxed(0, drv->rmb_base + RMB_PMI_CODE_LENGTH);
+	if (drv->rmb_base) {
+		if (drv->dp_size) {
+			writel_relaxed(start_addr + SZ_1M, drv->rmb_base +
+				       RMB_PMI_CODE_START);
+			writel_relaxed(drv->dp_size, drv->rmb_base +
+				       RMB_PMI_CODE_LENGTH);
+		} else {
+			writel_relaxed(0, drv->rmb_base + RMB_PMI_CODE_START);
+			writel_relaxed(0, drv->rmb_base + RMB_PMI_CODE_LENGTH);
+		}
 	}
 	/* Make sure RMB regs are written before bringing modem out of reset */
 	mb();
@@ -645,7 +647,8 @@ static int pil_mss_reset(struct pil_desc *pil)
 	return 0;
 
 err_q6v5_reset:
-	modem_log_rmb_regs(drv->rmb_base);
+	if (drv->rmb_base)
+		modem_log_rmb_regs(drv->rmb_base);
 err_restart:
 	pil_mss_disable_clks(drv);
 	if (drv->ahb_clk_vote)
