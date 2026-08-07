@@ -931,6 +931,11 @@ static int pil_parse_devicetree(struct pil_desc *desc)
 	}
 	desc->proxy_unvote_irq = clk_ready;
 
+	if (!strcmp(desc->name, "modem")) {
+		dev_info(desc->dev, "Forcing sequential firmware load for modem\n");
+		desc->sequential_load = true;
+	}
+
 	desc->sequential_load = of_property_read_bool(ofnode,
 						"qcom,sequential-fw-load");
 	return 0;
