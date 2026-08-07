@@ -52,6 +52,8 @@ jobs:
 
       - name: Build Kernel-With-KernelSU
         run: |
+          curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
+
           export PATH=$(pwd)/proton-clang/bin:$PATH
           
           sed -i 's/do.systemless=1/do.systemless=0/g' AnyKernel3/anykernel.sh
