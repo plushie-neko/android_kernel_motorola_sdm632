@@ -18,3 +18,9 @@
 #include "sdm632-pinctrl-m1822.dtsi"
 #include "sdm632-memory-m1822.dtsi"
 
+
+&soc {
+	qcom,mss@4080000 {
+		/delete-property/ qcom,pil-self-auth;
+	};
+};
