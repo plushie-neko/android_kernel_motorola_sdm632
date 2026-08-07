@@ -38,6 +38,11 @@
 
 #define DRV_NAME "msm8952-asoc-wcd"
 
+#ifdef CONFIG_SND_SOC_AW87329
+extern unsigned int xiaomi_msm8937_aw87329_audio_kspk(void);
+extern unsigned int xiaomi_msm8937_aw87329_audio_off(void);
+#endif
+
 #define MSM_INT_DIGITAL_CODEC "msm-dig-codec"
 #define PMIC_INT_ANALOG_CODEC "analog-codec"
 
@@ -225,10 +230,11 @@ static int msm8952_wsa_switch_event(struct snd_soc_dapm_widget *w,
 	struct snd_soc_codec *codec = snd_soc_dapm_to_codec(w->dapm);
 	struct on_demand_supply *supply;
 
+
 	pdata = snd_soc_card_get_drvdata(codec->component.card);
 	supply = &pdata->wsa_switch_supply;
 	if (!supply->supply) {
-		dev_err(codec->component.card->dev, "%s: no wsa switch supply",
+		dev_err(codec->component.card->dev, "%s: no wsa switch supply\n",
 			__func__);
 		return ret;
 	}
@@ -264,6 +270,18 @@ static int msm8952_wsa_switch_event(struct snd_soc_dapm_widget *w,
 	return ret;
 }
 
+#ifdef CONFIG_SND_SOC_AW87329
+static int aw87329_event(struct snd_soc_dapm_widget *w,
+			 struct snd_kcontrol *kcontrol, int event)
+{
+	if (event == SND_SOC_DAPM_POST_PMU)
+		xiaomi_msm8937_aw87329_audio_kspk();
+	else if (event == SND_SOC_DAPM_PRE_PMD)
+		xiaomi_msm8937_aw87329_audio_off();
+	return 0;
+}
+#endif
+
 static const struct snd_soc_dapm_widget msm8952_dapm_widgets[] = {
 
 	SND_SOC_DAPM_SUPPLY_S("MCLK", -1, SND_SOC_NOPM, 0, 0,
@@ -276,7 +294,10 @@ static const struct snd_soc_dapm_widget msm8952_dapm_widgets[] = {
 	SND_SOC_DAPM_MIC("Digital Mic2", NULL),
 	SND_SOC_DAPM_SUPPLY("VDD_WSA_SWITCH", SND_SOC_NOPM, 0, 0,
 	msm8952_wsa_switch_event,
-	SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMD),
+	SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD),
+#ifdef CONFIG_SND_SOC_AW87329
+	SND_SOC_DAPM_SPK("AW87329 PA", aw87329_event),
+#endif
 };
 
 static int config_hph_compander_gpio(bool enable,
@@ -1597,6 +1618,12 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 	struct snd_card *card;
 	int ret = -ENOMEM;
 
+#ifdef CONFIG_SND_SOC_AW87329
+	static const struct snd_soc_dapm_route aw87329_audio_map[] = {
+		{"AW87329 PA", NULL, "WSA_SPK OUT"},
+	};
+#endif
+
 	snd_soc_add_codec_controls(ana_cdc, msm_snd_controls,
 			ARRAY_SIZE(msm_snd_controls));
 	snd_soc_dapm_new_controls(dapm, msm8952_dapm_widgets,
@@ -1618,6 +1645,12 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 	snd_soc_dapm_ignore_suspend(dapm, "DMIC2");
 	snd_soc_dapm_ignore_suspend(dapm, "WSA_SPK OUT");
 	snd_soc_dapm_ignore_suspend(dapm, "LINEOUT");
+
+#ifdef CONFIG_SND_SOC_AW87329
+	snd_soc_dapm_add_routes(dapm, aw87329_audio_map,
+			ARRAY_SIZE(aw87329_audio_map));
+	snd_soc_dapm_enable_pin(dapm, "AW87329 PA");
+#endif
 
 	snd_soc_dapm_sync(dapm);
 
