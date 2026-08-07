@@ -833,7 +833,7 @@ static ssize_t udg_sysfs_template_clear_store(struct device *dev,
 			udg->template_data_buf,
 			udg->template_data_size);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to clear template data\n",
 				__func__);
 		return retval;
@@ -841,7 +841,7 @@ static ssize_t udg_sysfs_template_clear_store(struct device *dev,
 
 	retval = udg_sysfs_template_valid_store(dev, attr, cmd, 1);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to clear valid bit\n",
 				__func__);
 		return retval;
@@ -876,7 +876,7 @@ static ssize_t udg_sysfs_trace_data_show(struct file *data_file,
 		return -EINVAL;
 
 	if (count < trace_data_size) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Not enough space (%d bytes) in buffer\n",
 				__func__, (unsigned int)count);
 		return -EINVAL;
@@ -887,7 +887,7 @@ static ssize_t udg_sysfs_trace_data_show(struct file *data_file,
 			kfree(udg->trace_data_buf);
 		udg->trace_data_buf = kzalloc(trace_data_size, GFP_KERNEL);
 		if (!udg->trace_data_buf) {
-			dev_err(rmi4_data->pdev->dev.parent,
+			dev_dbg(rmi4_data->pdev->dev.parent,
 					"%s: Failed to alloc mem for trace data buffer\n",
 					__func__);
 			udg->trace_data_buf_size = 0;
@@ -901,7 +901,7 @@ static ssize_t udg_sysfs_trace_data_show(struct file *data_file,
 			&udg->trace_data_buf[index],
 			udg->trace_size * 2);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to read trace X data\n",
 				__func__);
 		return retval;
@@ -914,7 +914,7 @@ static ssize_t udg_sysfs_trace_data_show(struct file *data_file,
 			&udg->trace_data_buf[index],
 			udg->trace_size * 2);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to read trace Y data\n",
 				__func__);
 		return retval;
@@ -927,7 +927,7 @@ static ssize_t udg_sysfs_trace_data_show(struct file *data_file,
 			&udg->trace_data_buf[index],
 			udg->trace_size);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to read trace segment data\n",
 				__func__);
 		return retval;
@@ -936,7 +936,7 @@ static ssize_t udg_sysfs_trace_data_show(struct file *data_file,
 	retval = secure_memcpy(buf, count, udg->trace_data_buf,
 			udg->trace_data_buf_size, trace_data_size);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to copy trace data\n",
 				__func__);
 		return retval;
@@ -953,7 +953,7 @@ static ssize_t udg_sysfs_template_data_show(struct file *data_file,
 	struct synaptics_rmi4_data *rmi4_data = udg->rmi4_data;
 
 	if (count < udg->template_data_size) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Not enough space (%d bytes) in buffer\n",
 				__func__, (unsigned int)count);
 		return -EINVAL;
@@ -964,7 +964,7 @@ static ssize_t udg_sysfs_template_data_show(struct file *data_file,
 			udg->template_data_buf,
 			udg->template_data_size);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to read template data\n",
 				__func__);
 		return retval;
@@ -973,7 +973,7 @@ static ssize_t udg_sysfs_template_data_show(struct file *data_file,
 	retval = secure_memcpy(buf, count, udg->template_data_buf,
 			udg->template_data_size, udg->template_data_size);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to copy template data\n",
 				__func__);
 		return retval;
@@ -997,7 +997,7 @@ static ssize_t udg_sysfs_template_data_store(struct file *data_file,
 	retval = secure_memcpy(udg->template_data_buf, udg->template_data_size,
 			buf, count, count);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to copy template data\n",
 				__func__);
 		return retval;
@@ -1008,7 +1008,7 @@ static ssize_t udg_sysfs_template_data_store(struct file *data_file,
 			udg->template_data_buf,
 			count);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to write template data\n",
 				__func__);
 		return retval;
@@ -1286,7 +1286,7 @@ static int udg_ctrl_subpacket(unsigned char ctrlreg,
 	max_ctrlreg = (sizeof(query_5->data) - 1) * 8 - 1;
 
 	if (ctrlreg > max_ctrlreg) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Control register number (%d) over limit\n",
 				__func__, ctrlreg);
 		return -EINVAL;
@@ -1295,7 +1295,7 @@ static int udg_ctrl_subpacket(unsigned char ctrlreg,
 	q5_index = ctrlreg / 8 + 1;
 	bitnum = ctrlreg % 8;
 	if ((query_5->data[q5_index] & (1 << bitnum)) == 0x00) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Control %d is not present\n",
 				__func__, ctrlreg);
 		return -EINVAL;
@@ -1303,7 +1303,7 @@ static int udg_ctrl_subpacket(unsigned char ctrlreg,
 
 	query_6 = kmalloc(query_5->size_of_query6, GFP_KERNEL);
 	if (!query_6) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to alloc mem for query 6\n",
 				__func__);
 		return -ENOMEM;
@@ -1486,7 +1486,7 @@ static void udg_report(void)
 					rmi4_data->gesture_detection,
 					sizeof(rmi4_data->gesture_detection));
 			if (retval < 0) {
-				dev_err(rmi4_data->pdev->dev.parent,
+				dev_dbg(rmi4_data->pdev->dev.parent,
 						"%s: Failed to read gesture detection\n",
 						__func__);
 				return;
@@ -1583,7 +1583,7 @@ static int udg_read_template_data(unsigned char index)
 			storage,
 			udg->template_data_size);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to read template data\n",
 				__func__);
 		return retval;
@@ -1608,7 +1608,7 @@ static int udg_write_template_data(void)
 				storage,
 				udg->template_data_size);
 		if (retval < 0) {
-			dev_err(rmi4_data->pdev->dev.parent,
+			dev_dbg(rmi4_data->pdev->dev.parent,
 					"%s: Failed to write template data\n",
 					__func__);
 			return retval;
@@ -1643,7 +1643,7 @@ static int udg_reg_init(void)
 		return retval;
 
 	if (size_of_query < 4) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: User defined gesture support unavailable (missing data registers)\n",
 				__func__);
 		retval = -ENODEV;
@@ -1688,7 +1688,7 @@ static int udg_reg_init(void)
 		udg->addr.template_data = udg->addr.template_helper + 1;
 		udg->addr.template_flags = udg->addr.template_data + 1;
 	} else {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: User defined gesture support unavailable (missing data registers)\n",
 				__func__);
 		retval = -ENODEV;
@@ -1703,7 +1703,7 @@ static int udg_reg_init(void)
 		return retval;
 
 	if (size_of_query < 7) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: User defined gesture support unavailable (missing control registers)\n",
 				__func__);
 		retval = -ENODEV;
@@ -1899,7 +1899,7 @@ static int udg_scan_pdt(void)
 		}
 	}
 
-	dev_err(rmi4_data->pdev->dev.parent,
+	dev_dbg(rmi4_data->pdev->dev.parent,
 			"%s: Failed to find F12\n",
 			__func__);
 	return -EINVAL;
@@ -1912,7 +1912,7 @@ f12_found:
 
 	retval = udg_reg_init();
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to initialize user defined gesture registers\n",
 				__func__);
 		return retval;
@@ -1936,7 +1936,7 @@ f12_found:
 			&rmi4_data->intr_mask[0],
 			sizeof(rmi4_data->intr_mask[0]));
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to set interrupt enable bit\n",
 				__func__);
 		return retval;
@@ -1974,7 +1974,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 
 	udg = kzalloc(sizeof(*udg), GFP_KERNEL);
 	if (!udg) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to alloc mem for udg\n",
 				__func__);
 		retval = -ENOMEM;
@@ -1987,7 +1987,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 	size += sizeof(struct udg_tuning);
 	udg->ctrl_buf = kzalloc(size, GFP_KERNEL);
 	if (!udg->ctrl_buf) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to alloc mem for ctrl_buf\n",
 				__func__);
 		retval = -ENOMEM;
@@ -2002,7 +2002,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 
 	udg->template_data_buf = kzalloc(udg->template_data_size, GFP_KERNEL);
 	if (!udg->template_data_buf) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to alloc mem for template_data_buf\n",
 				__func__);
 		retval = -ENOMEM;
@@ -2014,7 +2014,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 			udg->template_data_size * udg->gestures_to_store,
 			GFP_KERNEL);
 	if (!udg->storage_buf) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to alloc mem for storage_buf\n",
 				__func__);
 		kfree(udg->template_data_buf);
@@ -2025,7 +2025,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 
 	udg->udg_dev = input_allocate_device();
 	if (udg->udg_dev == NULL) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to allocate gesture device\n",
 				__func__);
 		retval = -ENOMEM;
@@ -2045,7 +2045,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 
 	retval = input_register_device(udg->udg_dev);
 	if (retval) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to register gesture device\n",
 				__func__);
 		input_free_device(udg->udg_dev);
@@ -2055,7 +2055,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 	udg->tuning_dir = kobject_create_and_add(TUNING_SYSFS_DIR_NAME,
 			&udg->udg_dev->dev.kobj);
 	if (!udg->tuning_dir) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to create tuning sysfs directory\n",
 				__func__);
 		goto exit_unregister_input_device;
@@ -2063,7 +2063,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 
 	retval = sysfs_create_bin_file(&udg->udg_dev->dev.kobj, &template_data);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to create template data bin file\n",
 				__func__);
 		goto exit_remove_sysfs_directory;
@@ -2071,7 +2071,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 
 	retval = sysfs_create_bin_file(&udg->udg_dev->dev.kobj, &trace_data);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to create trace data bin file\n",
 				__func__);
 		goto exit_remove_bin_file;
@@ -2081,7 +2081,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 		retval = sysfs_create_file(&udg->udg_dev->dev.kobj,
 				&attrs[attr_count].attr);
 		if (retval < 0) {
-			dev_err(rmi4_data->pdev->dev.parent,
+			dev_dbg(rmi4_data->pdev->dev.parent,
 					"%s: Failed to create sysfs attributes\n",
 					__func__);
 			retval = -ENODEV;
@@ -2093,7 +2093,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 		retval = sysfs_create_file(udg->tuning_dir,
 				&params[param_count].attr);
 		if (retval < 0) {
-			dev_err(rmi4_data->pdev->dev.parent,
+			dev_dbg(rmi4_data->pdev->dev.parent,
 					"%s: Failed to create tuning parameters\n",
 					__func__);
 			retval = -ENODEV;
@@ -2103,7 +2103,7 @@ static int synaptics_rmi4_udg_init(struct synaptics_rmi4_data *rmi4_data)
 
 	retval = udg_engine_enable(true);
 	if (retval < 0) {
-		dev_err(rmi4_data->pdev->dev.parent,
+		dev_dbg(rmi4_data->pdev->dev.parent,
 				"%s: Failed to enable gesture engine\n",
 				__func__);
 		goto exit_remove_params;

@@ -313,7 +313,7 @@ static int parse_dt_rcgwr(struct platform_device *pdev, char *prop_name,
 	u32 *array;
 
 	if (!of_find_property(node, prop_name, &prop_len)) {
-		dev_err(&pdev->dev, "missing %s\n", prop_name);
+		dev_dbg(&pdev->dev, "missing %s\n", prop_name);
 		return -EINVAL;
 	}
 
