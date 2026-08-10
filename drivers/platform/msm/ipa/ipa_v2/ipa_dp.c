@@ -1231,7 +1231,8 @@ int ipa2_setup_sys_pipe(struct ipa_sys_connect_params *sys_in, u32 *clnt_hdl)
 	IPA_ACTIVE_CLIENTS_INC_EP(sys_in->client);
 
 	if (ep->valid == 1) {
-		if (sys_in->client != IPA_CLIENT_APPS_LAN_WAN_PROD) {
+		if (sys_in->client != IPA_CLIENT_APPS_LAN_WAN_PROD &&
+			sys_in->client != IPA_CLIENT_APPS_WAN_CONS) {
 			IPAERR("EP already allocated.\n");
 			goto fail_and_disable_clocks;
 		} else {
